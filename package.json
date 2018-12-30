@@ -8,6 +8,10 @@
   },
   "author": "ndsvw",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ndsvw/express-visit-counter"
+  },
   "dependencies": {
     "sqlite3": "^4.0.4"
   }

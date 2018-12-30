@@ -27,7 +27,7 @@ $ npm install express-visit-counter
 
 ## Example
 
-*site1.js:*
+*index.js for example:*
 
 ```js
 var visitCounter = require('express-visit-counter').Loader;
@@ -44,7 +44,7 @@ router.get('/', async function (req, res, next) {
 });
 ```
 
-![alt text](./example-image.png "Logo Title Text 1")
+![alt text](./example-image.png "result of the example code")
 
 ## Options
 
@@ -56,4 +56,4 @@ app.use(visitCounter.initialize({
 
 ## Advice
 
-If your code contains `app.use(express.static(path.join(__dirname, 'public')));`, it often makes sence to write `app.use(visitCounter.initialize());` **after** it so that static js files or css files are not logged.
+If your code contains `app.use(express.static(...));`, it often makes sence to write `app.use(visitCounter.initialize());` **after** these lines so that static js files or css files are not logged.
