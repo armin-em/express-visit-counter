@@ -1,0 +1,14 @@
+{
+  "name": "express-visit-counter",
+  "version": "0.0.1",
+  "description": "An express middleware that counts the visits of your website.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ndsvw",
+  "license": "MIT",
+  "dependencies": {
+    "sqlite3": "^4.0.4"
+  }
+}
