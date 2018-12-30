@@ -36,11 +36,25 @@ router.get('/', async function (req, res, next) {
   let visitorsAltogether = await visitCounter.getCount();
   let visitorsSite1 = await visitCounter.getCount("/site1");
   let visitorsSite2 = await visitCounter.getCount("/site2");
-  let visitorsLog = await visitCounter.getLog();
-  res.send(visitorsAltogether + " visitors altogether<br />");
-  res.send(visitorsSite1 + " visitors on site 1<br />");
-  res.send(visitorsSite2 + " visitors on site 2<br />");
-  res.end(JSON.stringify(visitorsLog));
+
+  let visitorsLogAltogether = await visitCounter.getLog();
+  let visitorsLogSite1 = await visitCounter.getLog("/site1");
+
+  res.send(`
+    <b>visitors altogether:</b> ${visitorsAltogether}<br />
+    <b>visitors on site 1:</b> ${visitorsSite1}<br />
+    <b>visitors on site 2:</b> ${visitorsSite2}<br />
+
+    <p>
+    <b>The whole log as JSON-String:</b><br />
+    ${JSON.stringify(visitorsLogAltogether)}
+    </p>
+
+    <p>
+    <b>The log of site1 as JSON-String:</b><br />
+    ${JSON.stringify(visitorsLogSite1)}
+    </p>
+  `);
 });
 ```
 
