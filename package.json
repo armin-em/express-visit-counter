@@ -1,6 +1,6 @@
 {
   "name": "express-visit-counter",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "An express middleware that counts the visits of your website.",
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,7 @@
     "url": "https://github.com/ndsvw/express-visit-counter"
   },
   "dependencies": {
+    "sql-escape": "^1.0.1",
     "sqlite3": "^4.0.4"
   }
 }

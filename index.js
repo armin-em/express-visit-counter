@@ -1,4 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
+const sqlEscape = require('sql-escape');
 
 let db = null;
 
@@ -9,7 +10,7 @@ let settings = {
 let VisitLogger = (req, res, next) => {
 
   db.serialize(function () {
-    db.run(`INSERT INTO visits VALUES (datetime('now'), "${req.path}");`);
+    db.run(`INSERT INTO visits VALUES (datetime('now'), "${sqlEscape(req.path)}");`);
   });
 
   next();
@@ -21,7 +22,7 @@ let VisitLoader = {
   },
   getLog: (path) => {
     return new Promise((resolve, reject) => {
-      let sql = `SELECT * FROM visits ${typeof path !== "undefined" ? "WHERE path = '" + path + "'" : ""};`;
+      let sql = `SELECT * FROM visits ${typeof path !== "undefined" ? "WHERE path = '" + sqlEscape(path) + "'" : ""};`;
       db.all(sql, [], (err, rows) => {
         if (err) {
           reject({ 'error': err });
@@ -37,7 +38,7 @@ let VisitLoader = {
   },
   getCount: (path) => {
     return new Promise((resolve, reject) => {
-      let sql = `SELECT COUNT(*) AS n FROM visits ${typeof path !== "undefined" ? "WHERE path = '" + path + "'" : ""};`;
+      let sql = `SELECT COUNT(*) AS n FROM visits ${typeof path !== "undefined" ? "WHERE path = '" + sqlEscape(path) + "'" : ""};`;
       db.get(sql, (err, row) => {
         if (err) {
           reject({ 'error': err });
