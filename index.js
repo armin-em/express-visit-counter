@@ -17,59 +17,51 @@ let VisitLogger = (req, res, next) => {
   next();
 };
 
+let sqlHandleOptions = (sql, options) => {
+  let path, range;
+  if (typeof options == "string") {
+    path = options;
+  } else if (typeof options == "object") {
+    path = typeof options.path === "string" ? options.path : null;
+    range = typeof options.range === "object" && options.range.length === 2 ? options.range : null;
+  }
+  if (path) {
+    sql = sql.where("path", sqlEscape(path));
+  }
+  if (range) {
+    sql = sql.whereBetween("timestamp", range.map(x => sqlEscape(x)));
+  }
+  return sql;
+}
+
 let VisitLoader = {
   clearLog: () => {
     db.run("DELETE FROM visits;");
   },
   getLog: (options) => {
-    let path, range;
-    if (typeof options == "string") {
-      path = options;
-    } else if (typeof options == "object") {
-      path = typeof options.path === "string" ? options.path : null;
-      range = typeof options.range === "object" && options.range.length === 2 ? options.range : null;
-    }
+    let path = typeof options == "string" ? options : (typeof options == "object" && typeof options.path === "string" ? options.path : null);
+    let sql = knex.select().from("visits");
+    sql = sqlHandleOptions(sql, options);
 
     return new Promise((resolve, reject) => {
-      let sql = knex.select().from("visits");
-      if (path) {
-        sql = sql.where("path", sqlEscape(path));
-      }
-      if (range) {
-        sql = sql.whereBetween("timestamp", range.map(x => sqlEscape(x)));
-      }
-
       db.all(sql.toString(), [], (err, rows) => {
         if (err) {
           reject({ 'error': err });
         } else {
-          if (typeof path === "undefined") {
-            resolve(rows);
-          } else {
+          if (path) {
             resolve(rows.map(o => o.timestamp));
+          } else {
+            resolve(rows);
           }
         }
       });
     });
   },
   getCount: (options) => {
-    let path, range;
-    if (typeof options == "string") {
-      path = options;
-    } else if (typeof options == "object") {
-      path = typeof options.path === "string" ? options.path : null;
-      range = typeof options.range === "object" && options.range.length === 2 ? options.range : null;
-    }
+    let sql = knex.select(knex.raw("COUNT(*) AS n")).from("visits");
+    sql = sqlHandleOptions(sql, options);
 
     return new Promise((resolve, reject) => {
-      let sql = knex.select(knex.raw("COUNT(*) AS n")).from("visits");
-      if (path) {
-        sql = sql.where("path", sqlEscape(path));
-      }
-      if (range) {
-        sql = sql.whereBetween("timestamp", range.map(x => sqlEscape(x)));
-      }
-
       db.get(sql.toString(), (err, row) => {
         if (err) {
           reject({ 'error': err });
