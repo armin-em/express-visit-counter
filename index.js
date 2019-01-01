@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const sqlEscape = require('sql-escape');
+const knex = require('knex')({ client: 'sqlite3' });
 
 let db = null;
 
@@ -20,10 +21,25 @@ let VisitLoader = {
   clearLog: () => {
     db.run("DELETE FROM visits;");
   },
-  getLog: (path) => {
+  getLog: (options) => {
+    let path, range;
+    if (typeof options == "string") {
+      path = options;
+    } else if (typeof options == "object") {
+      path = typeof options.path === "string" ? options.path : null;
+      range = typeof options.range === "object" && options.range.length === 2 ? options.range : null;
+    }
+
     return new Promise((resolve, reject) => {
-      let sql = `SELECT * FROM visits ${typeof path !== "undefined" ? "WHERE path = '" + sqlEscape(path) + "'" : ""};`;
-      db.all(sql, [], (err, rows) => {
+      let sql = knex.select().from("visits");
+      if (path) {
+        sql = sql.where("path", sqlEscape(path));
+      }
+      if (range) {
+        sql = sql.whereBetween("timestamp", range.map(x => sqlEscape(x)));
+      }
+
+      db.all(sql.toString(), [], (err, rows) => {
         if (err) {
           reject({ 'error': err });
         } else {
@@ -36,10 +52,25 @@ let VisitLoader = {
       });
     });
   },
-  getCount: (path) => {
+  getCount: (options) => {
+    let path, range;
+    if (typeof options == "string") {
+      path = options;
+    } else if (typeof options == "object") {
+      path = typeof options.path === "string" ? options.path : null;
+      range = typeof options.range === "object" && options.range.length === 2 ? options.range : null;
+    }
+
     return new Promise((resolve, reject) => {
-      let sql = `SELECT COUNT(*) AS n FROM visits ${typeof path !== "undefined" ? "WHERE path = '" + sqlEscape(path) + "'" : ""};`;
-      db.get(sql, (err, row) => {
+      let sql = knex.select(knex.raw("COUNT(*) AS n")).from("visits");
+      if (path) {
+        sql = sql.where("path", sqlEscape(path));
+      }
+      if (range) {
+        sql = sql.whereBetween("timestamp", range.map(x => sqlEscape(x)));
+      }
+
+      db.get(sql.toString(), (err, row) => {
         if (err) {
           reject({ 'error': err });
         } else {
@@ -51,7 +82,7 @@ let VisitLoader = {
 }
 
 let initialize = (options) => {
-  if (typeof options !== "undefined" && typeof options.sqlitePath !== "undefined") {
+  if (typeof options === "object" && typeof options.sqlitePath === "string") {
     settings.sqlitePath = options.sqlitePath;
   }
 
