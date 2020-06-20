@@ -1,6 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const sqlEscape = require('sql-escape');
-const knex = require('knex')({ client: 'sqlite3' });
+const knex = require('knex')({ client: 'sqlite3', useNullAsDefault: true });
 
 let db = null;
 
